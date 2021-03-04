@@ -1,0 +1,33 @@
+{
+  "name": "easyswoole/http-annotation-swagger",
+  "description": "easyswoole http annotation swagger",
+  "type": "library",
+  "keywords": [
+    "php",
+    "swoole",
+    "framework",
+    "easyswoole",
+    "swagger"
+  ],
+  "homepage" : "https://www.easyswoole.com/",
+  "license" : "Apache-2.0",
+  "require": {
+    "php": ">=7.2",
+    "easyswoole/http-annotation": "^2.0"
+  },
+  "require-dev": {
+    "easyswoole/swoole-ide-helper": "^1.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "EasySwoole\\HttpAnnotation\\Swagger\\": "src/"
+    }
+  },
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "lengbin",
+      "email": "xykxyk2008@163.com"
+    }
+  ]
+}
