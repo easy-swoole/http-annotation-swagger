@@ -405,7 +405,7 @@ class AnnotationParser implements AnnotationParserInterface
                     unset($val[$key]);
                     $val[$k[0]] = $v;
                 }
-                return json_encode($val);
+                return $val;
             }
             default:
             {
