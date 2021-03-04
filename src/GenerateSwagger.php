@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Swagger;
+namespace EasySwoole\HttpAnnotation\Swagger;
 
-use App\Swagger\Property\Component;
-use App\Swagger\Property\Info;
-use App\Swagger\Property\InfoContact;
-use App\Swagger\Property\InfoLicense;
-use App\Swagger\Property\Path;
-use App\Swagger\Property\Swagger;
-use App\Swagger\Property\Tag;
+use EasySwoole\HttpAnnotation\Swagger\Property\Component;
+use EasySwoole\HttpAnnotation\Swagger\Property\Info;
+use EasySwoole\HttpAnnotation\Swagger\Property\InfoContact;
+use EasySwoole\HttpAnnotation\Swagger\Property\InfoLicense;
+use EasySwoole\HttpAnnotation\Swagger\Property\Path;
+use EasySwoole\HttpAnnotation\Swagger\Property\Swagger;
+use EasySwoole\HttpAnnotation\Swagger\Property\Tag;
 use EasySwoole\Spl\SplArray;
 use Exception;
 
 /**
  * Class GenerateSwagger
- * @package App\Swagger
+ * @package EasySwoole\HttpAnnotation\Swagger
  */
 class GenerateSwagger
 {

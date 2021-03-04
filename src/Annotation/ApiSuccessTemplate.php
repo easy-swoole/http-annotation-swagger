@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Swagger\Annotation;
+namespace EasySwoole\HttpAnnotation\Swagger\Annotation;
 
 
 use EasySwoole\Annotation\AbstractAnnotationTag;

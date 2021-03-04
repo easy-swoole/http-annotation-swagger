@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Swagger\EasySwooleParser;
+namespace EasySwoole\HttpAnnotation\Swagger\EasySwooleParser;
 
 use EasySwoole\HttpAnnotation\Annotation\MethodAnnotation as BaseMethodAnnotation;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Swagger\Property;
+namespace EasySwoole\HttpAnnotation\Swagger\Property;
 
 /**
  * 基本信息 - 许可

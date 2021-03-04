@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Swagger\Property;
+namespace EasySwoole\HttpAnnotation\Swagger\Property;
 
 class PathParameter extends BaseProperty
 {

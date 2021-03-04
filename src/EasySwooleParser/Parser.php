@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Swagger\EasySwooleParser;
+namespace EasySwoole\HttpAnnotation\Swagger\EasySwooleParser;
 
-use App\Swagger\Annotation\ApiSuccessTemplate;
+use EasySwoole\HttpAnnotation\Swagger\Annotation\ApiSuccessTemplate;
 use EasySwoole\HttpAnnotation\Annotation\Cache;
 use EasySwoole\HttpAnnotation\Annotation\ObjectAnnotation;
 use EasySwoole\Annotation\Annotation;

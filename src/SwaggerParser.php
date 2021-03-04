@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Swagger;
+namespace EasySwoole\HttpAnnotation\Swagger;
 
-use App\Swagger\Property\ComponentSchema;
-use App\Swagger\Property\ComponentSchemaProperty;
-use App\Swagger\Property\Example;
-use App\Swagger\Property\ExternalDoc;
-use App\Swagger\Property\Path;
-use App\Swagger\Property\PathOperation;
-use App\Swagger\Property\PathParameter;
-use App\Swagger\Property\PathRequestBody;
-use App\Swagger\Property\PathRequestBodyContent;
-use App\Swagger\Property\PathResponse;
-use App\Swagger\Property\Security;
-use App\Swagger\Property\SecurityFlow;
-use App\Swagger\Property\Server;
-use App\Swagger\Property\ServerVariable;
+use EasySwoole\HttpAnnotation\Swagger\Property\ComponentSchema;
+use EasySwoole\HttpAnnotation\Swagger\Property\ComponentSchemaProperty;
+use EasySwoole\HttpAnnotation\Swagger\Property\Example;
+use EasySwoole\HttpAnnotation\Swagger\Property\ExternalDoc;
+use EasySwoole\HttpAnnotation\Swagger\Property\Path;
+use EasySwoole\HttpAnnotation\Swagger\Property\PathOperation;
+use EasySwoole\HttpAnnotation\Swagger\Property\PathParameter;
+use EasySwoole\HttpAnnotation\Swagger\Property\PathRequestBody;
+use EasySwoole\HttpAnnotation\Swagger\Property\PathRequestBodyContent;
+use EasySwoole\HttpAnnotation\Swagger\Property\PathResponse;
+use EasySwoole\HttpAnnotation\Swagger\Property\Security;
+use EasySwoole\HttpAnnotation\Swagger\Property\SecurityFlow;
+use EasySwoole\HttpAnnotation\Swagger\Property\Server;
+use EasySwoole\HttpAnnotation\Swagger\Property\ServerVariable;
 use EasySwoole\Spl\SplArray;
 
 class SwaggerParser

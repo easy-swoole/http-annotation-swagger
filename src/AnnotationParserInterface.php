@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Swagger;
+namespace EasySwoole\HttpAnnotation\Swagger;
 
-use App\Swagger\Property\Swagger;
+use EasySwoole\HttpAnnotation\Swagger\Property\Swagger;
 
 interface AnnotationParserInterface
 {

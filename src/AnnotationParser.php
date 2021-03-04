@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Swagger;
+namespace EasySwoole\HttpAnnotation\Swagger;
 
-use App\Swagger\EasySwooleParser\MethodAnnotation;
-use App\Swagger\EasySwooleParser\Parser;
-use App\Swagger\Property\Swagger;
-use App\Swagger\Property\Tag;
+use EasySwoole\HttpAnnotation\Swagger\EasySwooleParser\MethodAnnotation;
+use EasySwoole\HttpAnnotation\Swagger\EasySwooleParser\Parser;
+use EasySwoole\HttpAnnotation\Swagger\Property\Swagger;
+use EasySwoole\HttpAnnotation\Swagger\Property\Tag;
 use EasySwoole\HttpAnnotation\Annotation\ObjectAnnotation;
 use EasySwoole\HttpAnnotation\AnnotationTag\ApiDescription;
 use EasySwoole\HttpAnnotation\AnnotationTag\Param;
