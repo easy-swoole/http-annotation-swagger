@@ -262,7 +262,7 @@ class SwaggerParser
     {
         $serverParams = new SplArray($params);
         $variableList = [];
-        foreach ($serverParams->get('variables') as $key => $variable) {
+        foreach ($serverParams->get('variables') ?? [] as $key => $variable) {
             $variableParams = new SplArray($variable);
             $serverVariable = (new ServerVariable())->setKey($key)
                 ->setDefault($variableParams->get('default'))
