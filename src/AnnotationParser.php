@@ -2,8 +2,8 @@
 
 namespace EasySwoole\HttpAnnotation\Swagger;
 
-use EasySwoole\HttpAnnotation\Swagger\EasySwooleParser\MethodAnnotation;
-use EasySwoole\HttpAnnotation\Swagger\EasySwooleParser\Parser;
+use EasySwoole\HttpAnnotation\Annotation\MethodAnnotation;
+use EasySwoole\HttpAnnotation\Swagger\Annotation\ApiSuccessTemplate;
 use EasySwoole\HttpAnnotation\Swagger\Property\Swagger;
 use EasySwoole\HttpAnnotation\Swagger\Property\Tag;
 use EasySwoole\HttpAnnotation\Annotation\ObjectAnnotation;
@@ -500,7 +500,10 @@ class AnnotationParser implements AnnotationParserInterface
     public function parser(): array
     {
         $data = [];
-        $list = (new Scanner(new Parser()))->scanAnnotations($this->path);
+        $apiSuccessTemplate = new ApiSuccessTemplate();
+        $scanner = new Scanner();
+        $scanner->getParser()->getAnnotation()->addParserTag($apiSuccessTemplate);
+        $list = $scanner->scanAnnotations($this->path);
 
         /**
          * @var ObjectAnnotation $objectAnnotation
@@ -548,7 +551,7 @@ class AnnotationParser implements AnnotationParserInterface
                 }
 
                 $responses = [];
-                foreach ($method->getApiSuccessTemplate() as $item) {
+                foreach ($method->getOtherTags()[$apiSuccessTemplate->tagName()]??[] as $item) {
                     $template = $item->template;
                     $result = $item->result;
                     if (is_null($template) || empty($this->getTemplates()) || empty($this->getTemplates()[$template])) {
