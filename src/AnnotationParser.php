@@ -2,8 +2,8 @@
 
 namespace EasySwoole\HttpAnnotation\Swagger;
 
-use EasySwoole\HttpAnnotation\Swagger\EasySwooleParser\MethodAnnotation;
-use EasySwoole\HttpAnnotation\Swagger\EasySwooleParser\Parser;
+use EasySwoole\HttpAnnotation\Annotation\MethodAnnotation;
+use EasySwoole\HttpAnnotation\Swagger\Annotation\ApiSuccessTemplate;
 use EasySwoole\HttpAnnotation\Swagger\Property\Swagger;
 use EasySwoole\HttpAnnotation\Swagger\Property\Tag;
 use EasySwoole\HttpAnnotation\Annotation\ObjectAnnotation;
@@ -301,6 +301,7 @@ class AnnotationParser implements AnnotationParserInterface
     protected function parseParam(Param $param)
     {
         $schema = [
+            'type' => $param->type ?? 'string',
             'title' => $param->name,
             'description' => $param->description,
             'minLength' => $param->lengthMin,
@@ -310,17 +311,9 @@ class AnnotationParser implements AnnotationParserInterface
             'pattern' => $param->regex,
             'default' => $param->defaultValue,
         ];
-        $type = $param->type ?? 'string';
         if (!empty($param->inArray[0])) {
             $schema['enum'] = $param->inArray[0];
-            if (is_null($param->type)) {
-                $enumOne = current($param->inArray[0]);
-                $type = $this->getType($enumOne);
-            }
         }
-
-        $schema['type'] = $type;
-
         if ($schema['type'] === 'int') {
             $schema['type'] = 'integer';
         }
@@ -407,7 +400,7 @@ class AnnotationParser implements AnnotationParserInterface
             case 'object':
             case 'array':
             {
-                foreach ($val as $key => $v) {
+                foreach ($val as $key => $v){
                     $k = explode('|', $key);
                     unset($val[$key]);
                     $val[$k[0]] = $v;
@@ -445,7 +438,7 @@ class AnnotationParser implements AnnotationParserInterface
                     'type' => 'array',
                 ];
                 if (!empty($param)) {
-                    $paramItems = $this->parseParams($param, false);
+                    $paramItems =$this->parseParams($param, false);
                 }
                 if (isset($paramItems['params'])) {
                     $content['params'] = [$paramItems['params']];
@@ -507,7 +500,10 @@ class AnnotationParser implements AnnotationParserInterface
     public function parser(): array
     {
         $data = [];
-        $list = (new Scanner(new Parser()))->scanAnnotations($this->path);
+        $apiSuccessTemplate = new ApiSuccessTemplate();
+        $scanner = new Scanner();
+        $scanner->getParser()->getAnnotation()->addParserTag($apiSuccessTemplate);
+        $list = $scanner->scanAnnotations($this->path);
 
         /**
          * @var ObjectAnnotation $objectAnnotation
@@ -555,7 +551,7 @@ class AnnotationParser implements AnnotationParserInterface
                 }
 
                 $responses = [];
-                foreach ($method->getApiSuccessTemplate() as $item) {
+                foreach ($method->getOtherTags()[$apiSuccessTemplate->tagName()]??[] as $item) {
                     $template = $item->template;
                     $result = $item->result;
                     if (is_null($template) || empty($this->getTemplates()) || empty($this->getTemplates()[$template])) {
@@ -647,7 +643,7 @@ class AnnotationParser implements AnnotationParserInterface
                 $pathOptionsBack = $pathOptions;
 
                 $path = [];
-                $allows = $methods ? $methods->allow : ['get', 'post', 'delete', 'put', 'patch', 'options', 'head', 'track'];
+                $allows = $methods ? $methods->allow :  ['get', 'post', 'delete', 'put', 'patch', 'options', 'head', 'track'];
                 foreach ($allows as $allow) {
                     $pathOptions = $pathOptionsBack;
                     $allow = strtolower($allow);
