@@ -201,7 +201,7 @@ class AnnotationParser implements AnnotationParserInterface
         $auth = $ignoreAction = [];
         foreach ($authTagLists as $authTagList) {
             $auth[$authTagList->name] = $authTagList->name;
-            $ignoreAction[$authTagList->name] = $authTagList->ignoreAction;
+            $ignoreAction[$authTagList->name] = $authTagList->ignoreAction ?? [];
             if (array_key_exists($authTagList->name, $this->securities) > 0) {
                 continue;
             }
