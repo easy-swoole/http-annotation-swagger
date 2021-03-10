@@ -537,19 +537,24 @@ class AnnotationParser implements AnnotationParserInterface
                 }
                 $methods = $method->getMethodTag();
                 $parameters = [];
-                $paramTags = array_merge($paramTags, $method->getParamTag());
+                $methodParamTags = array_merge($paramTags, $method->getParamTag());
                 preg_match_all('/(?<=\{)[^\}]+(?=\})/', $apiTag->path, $matches);
                 if (!empty($matches[0])) {
                     foreach ($matches[0] as $match) {
-                        if (empty($paramTags[$match])) {
+                        if (empty($methodParamTags[$match])) {
                             continue;
                         }
-                        $pathParams = $paramTags[$match];
-                        unset($paramTags[$match]);
+                        $pathParams = $methodParamTags[$match];
+                        unset($methodParamTags[$match]);
                         $parameters[] = $this->parseParamTag($pathParams, 'path');
                     }
                 }
-
+                foreach ($methodParamTags as $paramTagName => $methodParamTag) {
+                    if (in_array('COOKIE', $methodParamTag->from) || in_array('cookie', $methodParamTag->from)) {
+                        $parameters[] = $this->parseParamTag($methodParamTag, 'cookie');
+                        unset($methodParamTags[$paramTagName]);
+                    }
+                }
                 $responses = [];
                 foreach ($method->getOtherTags()[$apiSuccessTemplate->tagName()]??[] as $item) {
                     $template = $item->template;
@@ -648,11 +653,11 @@ class AnnotationParser implements AnnotationParserInterface
                     $pathOptions = $pathOptionsBack;
                     $allow = strtolower($allow);
                     if (in_array($allow, ['get', 'delete'])) {
-                        foreach ($paramTags as $paramKey => $paramTag) {
+                        foreach ($methodParamTags as $paramKey => $paramTag) {
                             $pathOptions['parameters'][] = $this->parseParamTag($paramTag, 'query');
                         }
                     } else {
-                        $pathOptions['requestBody'] = $this->parseParamBody($paramTags);
+                        $pathOptions['requestBody'] = $this->parseParamBody($methodParamTags);
                     }
                     $pathOptions['operationId'] = 'easyswoole' . md5($apiTag->path . $allow);
                     $path[$allow] = $pathOptions;
