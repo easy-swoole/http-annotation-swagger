@@ -311,6 +311,9 @@ class AnnotationParser implements AnnotationParserInterface
             'pattern' => $param->regex,
             'default' => $param->defaultValue,
         ];
+        if (!empty($schema['default'])) {
+            $schema['example'] = $schema['default'];
+        }
         if (!empty($param->inArray[0])) {
             $schema['enum'] = $param->inArray[0];
         }
