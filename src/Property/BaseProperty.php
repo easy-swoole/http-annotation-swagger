@@ -25,6 +25,7 @@ class BaseProperty
                     }
                     if (isset($item['type']) && $item['type'] === 'array' && !isset($item['items'])) {
                         $item['items'] = new stdClass();
+                        $item['default'] = [];
                     }
                     $data[$k] = $item;
                 }

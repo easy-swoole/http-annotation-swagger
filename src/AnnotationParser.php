@@ -10,6 +10,7 @@ use EasySwoole\HttpAnnotation\Annotation\ObjectAnnotation;
 use EasySwoole\HttpAnnotation\AnnotationTag\ApiDescription;
 use EasySwoole\HttpAnnotation\AnnotationTag\Param;
 use EasySwoole\HttpAnnotation\Utility\Scanner;
+use EasySwoole\Spl\SplArray;
 
 class AnnotationParser implements AnnotationParserInterface
 {
@@ -43,7 +44,6 @@ class AnnotationParser implements AnnotationParserInterface
         'application/xml',
         '*/*',
     ];
-
 
     /**
      * @var array $tags
@@ -97,6 +97,7 @@ class AnnotationParser implements AnnotationParserInterface
 
     /**
      * @param string[] $contentTypes
+     *
      * @return AnnotationParser
      */
     public function setContentTypes(array $contentTypes): AnnotationParser
@@ -117,6 +118,7 @@ class AnnotationParser implements AnnotationParserInterface
 
     /**
      * @param array $accepts
+     *
      * @return AnnotationParser
      */
     public function setAccepts(array $accepts): AnnotationParser
@@ -129,6 +131,7 @@ class AnnotationParser implements AnnotationParserInterface
 
     /**
      * @param array $templates
+     *
      * @return AnnotationParser
      */
     public function setTemplates(array $templates): AnnotationParser
@@ -147,6 +150,7 @@ class AnnotationParser implements AnnotationParserInterface
 
     /**
      * @param ObjectAnnotation $objectAnnotation
+     *
      * @return array
      */
     protected function checkTag(ObjectAnnotation $objectAnnotation): array
@@ -182,6 +186,7 @@ class AnnotationParser implements AnnotationParserInterface
 
     /**
      * @param array $authTagLists
+     *
      * @return array
      */
     protected function checkSecurities(array $authTagLists): array
@@ -209,24 +214,25 @@ class AnnotationParser implements AnnotationParserInterface
             // 权限 默认 都为 api_key  header, key 为 name
             // todo 等注解支持 in 的时候 在修改， 也可以在配置参数设置权限， 反正boss又不会看代码，告辞
             $security = $this->swaggerParser->securityScheme([
-                'type' => 'apiKey',
-                'name' => $authTagList->name,
+                'type'        => 'apiKey',
+                'name'        => $authTagList->name,
                 'description' => $authTagList->description,
-                'in' => 'header',
+                'in'          => 'header',
             ], $authTagList->name);
             $this->swagger->getComponents()->addSecurityScheme($security);
         }
         return [
-            'auth' => $auth,
+            'auth'         => $auth,
             'ignoreAction' => $ignoreAction,
         ];
     }
 
     /**
-     * @param array $globalAuth
-     * @param array $groupAuth
-     * @param array $actionAuth
+     * @param array  $globalAuth
+     * @param array  $groupAuth
+     * @param array  $actionAuth
      * @param string $actionName
+     *
      * @return array
      */
     protected function getSecurities(array $globalAuth, array $groupAuth, array $actionAuth, string $actionName): array
@@ -259,6 +265,7 @@ class AnnotationParser implements AnnotationParserInterface
 
     /**
      * @param $content
+     *
      * @return false|mixed|string
      */
     protected function descTagContentFormat($content)
@@ -281,6 +288,7 @@ class AnnotationParser implements AnnotationParserInterface
 
     /**
      * @param ApiDescription|null $apiDescription
+     *
      * @return false|mixed|string|null
      */
     protected function parseDescTagContent(?ApiDescription $apiDescription = null)
@@ -301,16 +309,33 @@ class AnnotationParser implements AnnotationParserInterface
     protected function parseParam(Param $param)
     {
         $schema = [
-            'type' => $param->type ?? 'string',
-            'title' => $param->name,
+            'type'        => null,
+            'title'       => $param->name,
             'description' => $param->description,
-            'minLength' => $param->lengthMin,
-            'maxLength' => $param->lengthMax,
-            'minimum' => (float)$param->min,
-            'maximum' => (float)$param->max,
-            'pattern' => $param->regex,
-            'default' => $param->defaultValue,
+            'minLength'   => $param->lengthMin,
+            'maxLength'   => $param->lengthMax,
+            'minimum'     => (float)$param->min,
+            'maximum'     => (float)$param->max,
+            'pattern'     => $param->regex,
+            'default'     => $param->defaultValue,
         ];
+
+        if ($param->float) {
+            $schema['type'] = 'number';
+        }
+        if ($param->integer) {
+            $schema['type'] = 'integer';
+        }
+        if ($param->bool) {
+            $schema['type'] = 'bool';
+        }
+        if ($param->float || $param->decimal || $param->numeric || $param->money) {
+            $schema['type'] = 'number';
+        }
+        if (is_null($schema['type'])) {
+            $schema['type'] = $param->type ?? 'string';
+        }
+
         if (!empty($schema['default'])) {
             $schema['example'] = $schema['default'];
         }
@@ -323,12 +348,17 @@ class AnnotationParser implements AnnotationParserInterface
         if (in_array($schema['type'], ['float', 'double'])) {
             $schema['type'] = 'number';
         }
+        if ($schema['type'] === 'array') {
+            $items = new SplArray(['type' => 'string']);
+            $schema['items'] = $items;
+        }
         return $schema;
     }
 
     /**
-     * @param Param $param
+     * @param Param  $param
      * @param string $in
+     *
      * @return array
      */
     protected function parseParamTag(Param $param, string $in): array
@@ -336,42 +366,78 @@ class AnnotationParser implements AnnotationParserInterface
         $schema = $this->parseParam($param);
         $schema['required'] = !is_null($param->required);
         return [
-            'name' => $param->name,
-            'in' => $in,
-            'description' => $param->description,
+            'name'            => $param->name,
+            'in'              => $in,
+            'description'     => $param->description,
             'allowEmptyValue' => !$param->notEmpty,
-            'schema' => $schema,
-            'required' => !is_null($param->required),
+            'schema'          => $schema,
+            'required'        => !is_null($param->required),
         ];
+    }
+
+    protected function arraySet(array &$array, $path, $value)
+    {
+        if ($path === null) {
+            $array = $value;
+            return;
+        }
+        $keys = is_array($path) ? $path : explode('.', $path);
+
+        while (count($keys) > 1) {
+            $key = array_shift($keys);
+            if ($key === '*') {
+                $key = '{%template%}';
+            }
+            if (!isset($array[$key])) {
+                $array[$key] = [];
+            }
+            if (!is_array($array[$key])) {
+                $array[$key] = [$array[$key]];
+            }
+            $array = &$array[$key];
+        }
+        $array[array_shift($keys)] = $value;
     }
 
     protected function parseParamBody(array $params)
     {
         $required = $properties = [];
+        $data = $parseParams = [];
         foreach ($params as $param) {
-            if (!is_null($param->required)) {
-                $required[] = $param->name;
+            $names = explode('.', $param->name);
+            if (count($names) > 1) {
+                $parseParams[':' . $param->name] = $param;
+                $this->arraySet($data, $names, ':' . $param->name);
+            } else {
+                if (!is_null($param->required)) {
+                    $required[] = $param->name;
+                }
+                $properties[$param->name] = $this->parseParam($param);
             }
-            $properties[$param->name] = $this->parseParam($param);
         }
-
+        $data = str_replace("{%template%}", 0, json_encode($data));
+        $data = json_decode($data, true);
+        foreach ($data as $filed => $item) {
+            $properties[$filed] = $this->parseParams($item, false, $parseParams);
+        }
         $contents = [];
         foreach ($this->getContentTypes() as $mediaType) {
             $contents[$mediaType] = [
                 'schema' => [
                     'properties' => $properties,
-                    'required' => $required,
-                ]
+                    'required'   => $required,
+                ],
             ];
         }
         return [
-            'content' => $contents
+            'content' => $contents,
         ];
     }
 
     /**
      * @param array $array
-     * @param bool $consecutive
+     * @param bool  $consecutive
+     *
      * @return bool
      */
     protected function isIndexed(array $array, bool $consecutive = false): bool
@@ -403,7 +469,7 @@ class AnnotationParser implements AnnotationParserInterface
             case 'object':
             case 'array':
             {
-                foreach ($val as $key => $v){
+                foreach ($val as $key => $v) {
                     $k = explode('|', $key);
                     unset($val[$key]);
                     $val[$k[0]] = $v;
@@ -426,13 +492,17 @@ class AnnotationParser implements AnnotationParserInterface
         return $type;
     }
 
-    protected function parseParams($params, bool $isExample = true)
+    protected function parseParams($params, bool $isExample = true, array $parseParams = [])
     {
         $type = $this->getType($params);
         if ($type !== 'array') {
-            $content = [
-                'type' => $type === 'object' ? 'string' : $type,
-            ];
+            if (!empty($parseParams[$params]) && $parseParams[$params] instanceof Param) {
+                $content = $this->parseParam($parseParams[$params]);
+            } else {
+                $content = [
+                    'type' => $type === 'object' ? 'string' : $type,
+                ];
+            }
         } else {
             if ($this->isIndexed($params)) {
                 $param = !empty($params) ? current($params) : [];
@@ -441,7 +511,7 @@ class AnnotationParser implements AnnotationParserInterface
                     'type' => 'array',
                 ];
                 if (!empty($param)) {
-                    $paramItems =$this->parseParams($param, false);
+                    $paramItems = $this->parseParams($param, false, $parseParams);
                 }
                 if (isset($paramItems['params'])) {
                     $content['params'] = [$paramItems['params']];
@@ -452,7 +522,7 @@ class AnnotationParser implements AnnotationParserInterface
                 $properties = [];
                 $check = false;
                 foreach ($params as $key => $value) {
-                    $item = $this->parseParams($value, false);
+                    $item = $this->parseParams($value, false, $parseParams);
                     if (isset($item['params'])) {
                         $params[$key] = $item['params'];
                         unset($item['params']);
@@ -467,7 +537,7 @@ class AnnotationParser implements AnnotationParserInterface
                     $properties[$k[0]] = $item;
                 }
                 $content = [
-                    'type' => 'object',
+                    'type'       => 'object',
                     'properties' => $properties,
                 ];
                 if ($check) {
@@ -490,15 +560,14 @@ class AnnotationParser implements AnnotationParserInterface
         $contents = [];
         foreach ($this->getAccepts() as $accept) {
             $contents[$accept] = [
-                'schema' => $content
+                'schema' => $content,
             ];
         }
         return [
             'description' => $key,
-            'content' => $contents
+            'content'     => $contents,
         ];
     }
-
 
     public function parser(): array
     {
@@ -559,14 +628,14 @@ class AnnotationParser implements AnnotationParserInterface
                     }
                 }
                 $responses = [];
-                foreach ($method->getOtherTags()[$apiSuccessTemplate->tagName()]??[] as $item) {
+                foreach ($method->getOtherTags()[$apiSuccessTemplate->tagName()] ?? [] as $item) {
                     $template = $item->template;
                     $result = $item->result;
                     if (is_null($template) || empty($this->getTemplates()) || empty($this->getTemplates()[$template])) {
                         $templateData = [
-                            'code' => $item->code,
+                            'code'   => $item->code,
                             'result' => is_null($result) ? '' : $result,
-                            'msg' => $item->msg,
+                            'msg'    => $item->msg,
                         ];
                     } else {
                         if (is_null($result)) {
@@ -617,7 +686,7 @@ class AnnotationParser implements AnnotationParserInterface
                     }
                     $responses['default'] = [
                         'description' => 'default',
-                        'content' => $contents
+                        'content'     => $contents,
                     ];
                 }
 
@@ -637,13 +706,13 @@ class AnnotationParser implements AnnotationParserInterface
                 $security = $this->getSecurities($globalAuth, $groupAuth, $authParams, $methodName);
 
                 $pathOptions = [
-                    'tags' => $tags,
-                    'summary' => $apiTag->name,
+                    'tags'        => $tags,
+                    'summary'     => $apiTag->name,
                     'description' => $description,
-                    'parameters' => $parameters,
-                    'responses' => $responses,
-                    'deprecated' => $apiTag->deprecated,
-                    'security' => [],
+                    'parameters'  => $parameters,
+                    'responses'   => $responses,
+                    'deprecated'  => $apiTag->deprecated,
+                    'security'    => [],
                 ];
                 if (!empty($security)) {
                     $pathOptions['security'] = [$security];
@@ -651,7 +720,7 @@ class AnnotationParser implements AnnotationParserInterface
                 $pathOptionsBack = $pathOptions;
 
                 $path = [];
-                $allows = $methods ? $methods->allow :  ['get', 'post', 'delete', 'put', 'patch', 'options', 'head', 'track'];
+                $allows = $methods ? $methods->allow : ['get', 'post', 'delete', 'put', 'patch', 'options', 'head', 'track'];
                 foreach ($allows as $allow) {
                     $pathOptions = $pathOptionsBack;
                     $allow = strtolower($allow);

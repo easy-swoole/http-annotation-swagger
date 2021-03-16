@@ -27,7 +27,7 @@ class ComponentSchema extends BaseProperty
     ];
 
     /**
-     * @var ComponentSchemaProperty[]|null
+     * @var ComponentSchemaProperty|ComponentSchemaProperty[]|null
      */
     protected $properties;
 
@@ -93,17 +93,17 @@ class ComponentSchema extends BaseProperty
     /**
      * @return ComponentSchemaProperty[]|null
      */
-    public function getProperties(): ?array
+    public function getProperties()
     {
         return $this->properties;
     }
 
     /**
-     * @param ComponentSchemaProperty[]|null $properties
+     * @param ComponentSchemaProperty|ComponentSchemaProperty[]|null $properties
      *
      * @return ComponentSchema
      */
-    public function setProperties(?array $properties): ComponentSchema
+    public function setProperties($properties): ComponentSchema
     {
         $this->properties = $properties;
         return $this;
