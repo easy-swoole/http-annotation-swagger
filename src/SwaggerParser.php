@@ -20,6 +20,40 @@ use EasySwoole\Spl\SplArray;
 
 class SwaggerParser
 {
+    /**
+     * @param SplArray $schemaPropertyParams
+     *
+     * @return ComponentSchemaProperty
+     */
+    protected function parseSchemaProperty(SplArray $schemaPropertyParams, $key = '')
+    {
+        $componentSchemaProperty = new ComponentSchemaProperty();
+        $componentSchemaProperty->setKey($key)
+            ->setType($schemaPropertyParams->get('type'))
+            ->setTitle($schemaPropertyParams->get('title'))
+            ->setMultipleOf($schemaPropertyParams->get('multipleOf'))
+            ->setMaximum($schemaPropertyParams->get('maximum'))
+            ->setExclusiveMaximum($schemaPropertyParams->get('exclusiveMaximum'))
+            ->setMinimum($schemaPropertyParams->get('minimum'))
+            ->setExclusiveMinimum($schemaPropertyParams->get('exclusiveMinimum'))
+            ->setMaxLength($schemaPropertyParams->get('maxLength'))
+            ->setMinLength($schemaPropertyParams->get('minLength'))
+            ->setPattern($schemaPropertyParams->get('pattern'))
+            ->setMaxItems($schemaPropertyParams->get('maxItems'))
+            ->setMinItems($schemaPropertyParams->get('minItems'))
+            ->setUniqueItems($schemaPropertyParams->get('uniqueItems'))
+            ->setMaxProperties($schemaPropertyParams->get('maxProperties'))
+            ->setMinProperties($schemaPropertyParams->get('minProperties'))
+            ->setRequired($schemaPropertyParams->get('required'))
+            ->setEnum($schemaPropertyParams->get('enum'))
+            ->setDefault($schemaPropertyParams->get('default'))
+            ->setDescription($schemaPropertyParams->get('description'))
+            ->setDeprecated($schemaPropertyParams->get('deprecated'))
+            ->setExample($schemaPropertyParams->get('example'))
+            ->setRef($schemaPropertyParams->get('ref'))
+            ->setXml($schemaPropertyParams->get('xml'));
+        return $componentSchemaProperty;
+    }
 
     /**
      * @param array $params
@@ -31,7 +65,6 @@ class SwaggerParser
         if (isset($params['properties']) || isset($params['items'])) {
             return $this->schema($params);
         }
-
         $data = [];
         foreach ($params as $key => $item) {
             $schemaPropertyParams = new SplArray($item);
@@ -39,39 +72,13 @@ class SwaggerParser
                 $data[] = $this->schema($item, $key);
                 continue;
             }
-
-            $componentSchemaProperty = new ComponentSchemaProperty();
-            $componentSchemaProperty->setKey($key)
-                ->setType($schemaPropertyParams->get('type'))
-                ->setTitle($schemaPropertyParams->get('title'))
-                ->setMultipleOf($schemaPropertyParams->get('multipleOf'))
-                ->setMaximum($schemaPropertyParams->get('maximum'))
-                ->setExclusiveMaximum($schemaPropertyParams->get('exclusiveMaximum'))
-                ->setMinimum($schemaPropertyParams->get('minimum'))
-                ->setExclusiveMinimum($schemaPropertyParams->get('exclusiveMinimum'))
-                ->setMaxLength($schemaPropertyParams->get('maxLength'))
-                ->setMinLength($schemaPropertyParams->get('minLength'))
-                ->setPattern($schemaPropertyParams->get('pattern'))
-                ->setMaxItems($schemaPropertyParams->get('maxItems'))
-                ->setMinItems($schemaPropertyParams->get('minItems'))
-                ->setUniqueItems($schemaPropertyParams->get('uniqueItems'))
-                ->setMaxProperties($schemaPropertyParams->get('maxProperties'))
-                ->setMinProperties($schemaPropertyParams->get('minProperties'))
-                ->setRequired($schemaPropertyParams->get('required'))
-                ->setEnum($schemaPropertyParams->get('enum'))
-                ->setDefault($schemaPropertyParams->get('default'))
-                ->setDescription($schemaPropertyParams->get('description'))
-                ->setDeprecated($schemaPropertyParams->get('deprecated'))
-                ->setExample($schemaPropertyParams->get('example'))
-                ->setRef($schemaPropertyParams->get('ref'))
-                ->setXml($schemaPropertyParams->get('xml'));
-            $data[] = $componentSchemaProperty;
+            $data[] = $this->parseSchemaProperty($schemaPropertyParams, $key);
         }
         return $data;
     }
 
     /**
-     * @param array $params
+     * @param array       $params
      * @param string|null $key
      *
      * @return ComponentSchema
@@ -84,8 +91,19 @@ class SwaggerParser
         }
         $params = new SplArray($params);
 
-        $properties = $this->schemaProperty($params->get('properties') ?? []);
-        $items = $this->schemaProperty($params->get('items') ?? []);
+        $properties = $params->get('properties') ?? [];
+        if ($properties instanceof SplArray) {
+            $properties = $this->parseSchemaProperty($properties);
+        } else {
+            $properties = $this->schemaProperty($properties);
+        }
+
+        $items = $params->get('items') ?? [];
+        if ($items instanceof SplArray) {
+            $items = $this->parseSchemaProperty($items);
+        } else {
+            $items = $this->schemaProperty($items);
+        }
 
         $schema->setKey($key)
             ->setType($params->get('type'))
@@ -102,7 +120,7 @@ class SwaggerParser
     }
 
     /**
-     * @param array $params
+     * @param array  $params
      * @param string $key
      *
      * @return PathRequestBodyContent
@@ -124,7 +142,7 @@ class SwaggerParser
     }
 
     /**
-     * @param array $params
+     * @param array  $params
      * @param string $key
      *
      * @return PathResponse
@@ -203,8 +221,8 @@ class SwaggerParser
     }
 
     /**
-     * @param array $params
-     * @param string $key
+     * @param array  $params
+     * @param string|null $key
      *
      * @return Security
      */
@@ -313,7 +331,7 @@ class SwaggerParser
     }
 
     /**
-     * @param array $params
+     * @param array  $params
      * @param string $key
      *
      * @return Path
