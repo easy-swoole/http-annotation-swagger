@@ -348,10 +348,6 @@ class AnnotationParser implements AnnotationParserInterface
         if (in_array($schema['type'], ['float', 'double'])) {
             $schema['type'] = 'number';
         }
-        if ($schema['type'] === 'array') {
-            $items = new SplArray(['type' => 'string']);
-            $schema['items'] = $items;
-        }
         return $schema;
     }
 
