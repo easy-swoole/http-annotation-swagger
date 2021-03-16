@@ -392,7 +392,11 @@ class AnnotationParser implements AnnotationParserInterface
             }
             $array = &$array[$key];
         }
-        $array[array_shift($keys)] = $value;
+        $lastKey = array_shift($keys);
+        if ($lastKey === '*') {
+            $lastKey = '{%template%}';
+        }
+        $array[$lastKey] = $value;
     }
 
     protected function parseParamBody(array $params)
@@ -507,7 +511,11 @@ class AnnotationParser implements AnnotationParserInterface
                     'type' => 'array',
                 ];
                 if (!empty($param)) {
-                    $paramItems = $this->parseParams($param, false, $parseParams);
+                    if (!empty($parseParams[$param]) && $parseParams[$param] instanceof Param) {
+                        $paramItems = new SplArray($this->parseParam($parseParams[$param]));
+                    } else {
+                        $paramItems = $this->parseParams($param, false, $parseParams);
+                    }
                 }
                 if (isset($paramItems['params'])) {
                     $content['params'] = [$paramItems['params']];
