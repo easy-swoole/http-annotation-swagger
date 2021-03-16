@@ -92,17 +92,21 @@ class SwaggerParser
         $params = new SplArray($params);
 
         $properties = $params->get('properties') ?? [];
-        if ($properties instanceof SplArray) {
-            $properties = $this->parseSchemaProperty($properties);
-        } else {
-            $properties = $this->schemaProperty($properties);
+        if ($properties) {
+            if ($properties instanceof SplArray) {
+                $properties = $this->parseSchemaProperty($properties);
+            } else {
+                $properties = $this->schemaProperty($properties);
+            }
         }
 
         $items = $params->get('items') ?? [];
-        if ($items instanceof SplArray) {
-            $items = $this->parseSchemaProperty($items);
-        } else {
-            $items = $this->schemaProperty($items);
+        if ($items) {
+            if ($items instanceof SplArray) {
+                $items = $this->parseSchemaProperty($items);
+            } else {
+                $items = $this->schemaProperty($items);
+            }
         }
 
         $schema->setKey($key)
