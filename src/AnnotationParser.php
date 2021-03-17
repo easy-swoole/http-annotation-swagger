@@ -496,7 +496,7 @@ class AnnotationParser implements AnnotationParserInterface
     {
         $type = $this->getType($params);
         if ($type !== 'array') {
-            if (!empty($parseParams[$params]) && $parseParams[$params] instanceof Param) {
+            if (in_array($params, array_keys($parseParams)) && $parseParams[$params] instanceof Param) {
                 $content = $this->parseParam($parseParams[$params]);
             } else {
                 $content = [
@@ -511,8 +511,8 @@ class AnnotationParser implements AnnotationParserInterface
                     'type' => 'array',
                 ];
                 if (!empty($param)) {
-                    if (!empty($parseParams[$param]) && $parseParams[$param] instanceof Param) {
-                        $paramItems = new SplArray($this->parseParam($parseParams[$param]));
+                    if (in_array($param, array_keys($parseParams)) && $parseParams[$param] instanceof Param) {
+                        $paramItems = new SplArray($this->parseParam( $parseParams[$param]));
                     } else {
                         $paramItems = $this->parseParams($param, false, $parseParams);
                     }
