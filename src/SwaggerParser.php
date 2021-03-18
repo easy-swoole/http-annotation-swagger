@@ -95,6 +95,8 @@ class SwaggerParser
         if ($properties) {
             if ($properties instanceof SplArray) {
                 $properties = $this->parseSchemaProperty($properties);
+            } elseif (count($properties) === count($properties, 1)) {
+                $properties = $this->parseSchemaProperty(new SplArray($properties));
             } else {
                 $properties = $this->schemaProperty($properties);
             }
@@ -104,6 +106,8 @@ class SwaggerParser
         if ($items) {
             if ($items instanceof SplArray) {
                 $items = $this->parseSchemaProperty($items);
+            }elseif (count($items) === count($items, 1)) {
+                $items = $this->parseSchemaProperty(new SplArray($items));
             } else {
                 $items = $this->schemaProperty($items);
             }
@@ -225,7 +229,7 @@ class SwaggerParser
     }
 
     /**
-     * @param array  $params
+     * @param array       $params
      * @param string|null $key
      *
      * @return Security
